@@ -61,11 +61,26 @@ Inspect `data/raw/bayan_raw_sample.csv` and document at least six defect classes
   * `3. The waste bin is full.`
 
 
-## Lab 2 — Parameter audit
-| Checkpoint | Total params | Embeddings % | Other notes |
-|---|---:|---:|---|
-| mBERT | | | |
-| CAMeLBERT | | | |
+## Lab 2 — Parameter Audit
+
+### mBERT
+- Embeddings: 92,208,384
+- Attention: 28,366,848
+- FFN: 56,669,184
+- Norms: 18,432
+- Pooler: 590,592
+- Total: 177,853,440
+
+### CAMeLBERT
+- Embeddings: 23,436,288
+- Attention: 28,366,848
+- FFN: 56,669,184
+- Norms: 18,432
+- Pooler: 590,592
+- Total: 109,081,344
+
+### Why is the embedding share different?
+mBERT has a much larger multilingual vocabulary, so its embedding matrix is much larger. CAMeLBERT focuses on Arabic, so it needs a smaller vocabulary and therefore fewer embedding parameters.
 
 ## Lab 4 — Dialect audit
 - Distribution:

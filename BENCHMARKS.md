@@ -17,6 +17,17 @@ XLM-R provided the most balanced tokenization performance across Arabic and Engl
 - Golden preprocessing: 25 / 25 passed
 - PII masking recall: **60 / 60 = 100%**
 
+
+## Lab 2 — Attention Diagnostics
+
+- Numerical equivalence with PyTorch: Passed
+- Multi-Head Attention output shape: [1, 4, 16]
+- Multi-Head Attention weights shape: [1, 2, 4, 4]
+- Future attention mass with causal mask: 0.0
+- Pad mass without mask: 1.383461833000183
+- Pad mass with mask: 0.0
+
+
 ## Lab 3 — Models
 | Model | Metric | Validation | Frozen test | Train time |
 |---|---|---:|---:|---:|
