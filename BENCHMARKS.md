@@ -125,3 +125,45 @@ The +0.08 improvement target could not be exceeded because the baseline already 
 - Smoke-set unanswerable questions: 0/0 present in the supplied file
 
 Note: The supplied `qa_smoke_set.json` contains 12 answerable questions and no unanswerable questions, while the README specifies 9 answerable and 3 unanswerable questions. Honest null handling is covered by the QA contract tests.
+
+
+## Lab 4 — Clitic Segmentation for NER
+
+### LOCATION Recall
+- Before segmentation: 1.0000
+- After segmentation: 1.0000
+- Delta: +0.0000
+
+The target improvement of about +0.04 recall points was not observed because the original Lab 3B NER model already achieved perfect LOCATION recall on the supplied test split, leaving no room for measurable improvement.
+
+
+## Lab 4 — Arabic Model Bake-off
+
+### Arabic grouped split
+- Train: 5026
+- Validation: 1077
+- Test: 1097
+- Train / Validation citizen overlap: 0
+- Train / Test citizen overlap: 0
+- Validation / Test citizen overlap: 0
+
+### Test dialect distribution
+- Gulf: 756
+- MSA: 341
+
+### CAMeLBERT-mix
+- All Macro-F1: 1.0000
+- Gulf Macro-F1: 1.0000
+- MSA Macro-F1: 1.0000
+
+### CAMeLBERT-DA
+- All Macro-F1: 1.0000
+- Gulf Macro-F1: 1.0000
+- MSA Macro-F1: 1.0000
+
+### Gulf Slice Delta
+- CAMeLBERT-mix: 1.0000
+- CAMeLBERT-DA: 1.0000
+- Delta: +0.0000
+
+The +0.04 Gulf-slice improvement target was not observed because both models achieved the maximum possible Macro-F1 score on the supplied Arabic evaluation split.

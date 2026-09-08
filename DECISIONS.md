@@ -36,3 +36,10 @@ XLM-R was selected because it provides the best overall balance between Arabic a
 - Encoder/decoder rationale by task:
 - Multilingual vs Arabic-centric rationale:
 - Evidence used:
+
+
+## Arabic Model
+
+CAMeLBERT-mix and CAMeLBERT-DA both achieved 1.0000 Macro-F1 on the full Arabic, Gulf, and MSA slices.
+
+Because there was no measurable Gulf-slice advantage for CAMeLBERT-DA, there is no evidence-based winner on the supplied dataset. CAMeLBERT-mix is retained as the default model for consistency with the existing Bayan pipeline.

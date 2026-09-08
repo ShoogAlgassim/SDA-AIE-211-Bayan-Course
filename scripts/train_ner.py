@@ -1,4 +1,4 @@
-"""Lab 3B: fine-tune Bayan NER with correct BIO/subword alignment."""
+"""Lab 4: fine-tune Bayan NER with Arabic clitic segmentation."""
 
 import argparse
 from pathlib import Path
@@ -13,9 +13,16 @@ from transformers import (
     Trainer,
     TrainingArguments,
 )
-from seqeval.metrics import accuracy_score, f1_score, precision_score, recall_score
+from seqeval.metrics import (
+    accuracy_score,
+    classification_report,
+    f1_score,
+    precision_score,
+    recall_score,
+)
 
 from bayan.models.ner import align_labels
+from bayan.preprocessing.arabic import segment
 
 
 CHECKPOINT = "CAMeL-Lab/bert-base-arabic-camelbert-mix"
@@ -75,9 +82,15 @@ def parse_conll(path):
 
 
 class NERDataset(Dataset):
-    def __init__(self, examples, tokenizer):
+    def __init__(
+        self,
+        examples,
+        tokenizer,
+        use_segmentation=False,
+    ):
         self.examples = examples
         self.tokenizer = tokenizer
+        self.use_segmentation = use_segmentation
 
     def __len__(self):
         return len(self.examples)
@@ -86,10 +99,41 @@ class NERDataset(Dataset):
         example = self.examples[idx]
 
         words = example["words"]
-        word_labels = [
-            LABEL2ID[label]
-            for label in example["labels"]
-        ]
+        labels = example["labels"]
+
+        # Lab 4: Arabic clitic segmentation
+        if self.use_segmentation:
+            segmented_words = []
+            segmented_word_labels = []
+
+            for word, label in zip(words, labels):
+                pieces = segment(word)
+
+                if not pieces:
+                    pieces = [word]
+
+                for piece_index, piece in enumerate(pieces):
+                    segmented_words.append(piece)
+
+                    # Only the first clitic piece receives
+                    # the original word-level NER label.
+                    if piece_index == 0:
+                        segmented_word_labels.append(
+                            LABEL2ID[label]
+                        )
+                    else:
+                        # Ignore continuation clitic pieces
+                        # during loss/evaluation.
+                        segmented_word_labels.append(-100)
+
+            words = segmented_words
+            word_labels = segmented_word_labels
+
+        else:
+            word_labels = [
+                LABEL2ID[label]
+                for label in labels
+            ]
 
         encoding = self.tokenizer(
             words,
@@ -100,8 +144,12 @@ class NERDataset(Dataset):
             return_tensors="pt",
         )
 
-        word_ids = encoding.word_ids(batch_index=0)
+        word_ids = encoding.word_ids(
+            batch_index=0
+        )
 
+        # align_labels also masks tokenizer subword
+        # continuation pieces with -100.
         aligned_labels = align_labels(
             word_ids,
             word_labels,
@@ -161,6 +209,18 @@ def compute_metrics(eval_pred):
             sentence_labels
         )
 
+    report = classification_report(
+        true_labels,
+        true_predictions,
+        output_dict=True,
+        zero_division=0,
+    )
+
+    location_recall = (
+        report.get("LOCATION", {})
+        .get("recall", 0.0)
+    )
+
     return {
         "precision": precision_score(
             true_labels,
@@ -178,6 +238,7 @@ def compute_metrics(eval_pred):
             true_labels,
             true_predictions,
         ),
+        "location_recall": location_recall,
     }
 
 
@@ -186,8 +247,8 @@ def parse_args():
 
     parser.add_argument(
         "--output-dir",
-        default="artifacts/ner",
-        help="Where to save the trained NER artefact.",
+        default="artifacts/ner_segmented",
+        help="Where to save the segmented NER artefact.",
     )
 
     return parser.parse_args()
@@ -197,17 +258,18 @@ def main():
     args = parse_args()
 
     output_dir = Path(args.output_dir)
+
     output_dir.mkdir(
         parents=True,
         exist_ok=True,
     )
 
-    # 1. Parse CoNLL
+    # 1. Parse CoNLL data
     data = parse_conll(DATA_PATH)
 
     print("Total sentences:", len(data))
 
-    # 2. Deterministic split
+    # 2. Same deterministic split as Lab 3B
     train_data, temp_data = train_test_split(
         data,
         test_size=0.30,
@@ -233,23 +295,26 @@ def main():
         CHECKPOINT
     )
 
-    # 4. Build datasets
+    # 4. Build datasets WITH clitic segmentation
     train_dataset = NERDataset(
         train_data,
         tokenizer,
+        use_segmentation=True,
     )
 
     validation_dataset = NERDataset(
         validation_data,
         tokenizer,
+        use_segmentation=True,
     )
 
     test_dataset = NERDataset(
         test_data,
         tokenizer,
+        use_segmentation=True,
     )
 
-    # 5. Load token-classification model
+    # 5. Load token classification model
     model = AutoModelForTokenClassification.from_pretrained(
         CHECKPOINT,
         num_labels=len(LABELS),
@@ -301,11 +366,11 @@ def main():
     )
 
     # 8. Train
-    print("\nStarting NER training...")
+    print("\nStarting segmented NER training...")
 
     trainer.train()
 
-    # 9. Validation metrics
+    # 9. Validation
     print("\nValidation metrics:")
 
     validation_metrics = trainer.evaluate(
@@ -314,7 +379,7 @@ def main():
 
     print(validation_metrics)
 
-    # 10. Frozen test evaluation
+    # 10. Frozen test
     print("\nFrozen test metrics:")
 
     test_metrics = trainer.evaluate(
@@ -323,6 +388,11 @@ def main():
     )
 
     print(test_metrics)
+
+    print(
+        "\nSegmented LOCATION recall:",
+        test_metrics.get("test_location_recall"),
+    )
 
     # 11. Save model + tokenizer
     trainer.save_model(
@@ -333,7 +403,7 @@ def main():
         str(output_dir)
     )
 
-    print("\nSaved NER model and tokenizer to:")
+    print("\nSaved segmented NER model and tokenizer to:")
     print(output_dir)
 
 

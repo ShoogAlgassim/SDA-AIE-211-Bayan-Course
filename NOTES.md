@@ -85,3 +85,14 @@ mBERT has a much larger multilingual vocabulary, so its embedding matrix is much
 ## Lab 4 — Dialect audit
 - Distribution:
 - One-sentence implication for MSA-only evaluation:
+
+
+## Lab 4 — Dialect Audit
+
+### Arabic Slice Distribution
+- Total Arabic rows: 7200
+- Gulf: 4800 (66.67%)
+- MSA: 2400 (33.33%)
+
+### Implication
+Evaluating only on MSA would not represent the full Arabic data distribution, because most Arabic feedback in the dataset belongs to the Gulf dialect slice.
