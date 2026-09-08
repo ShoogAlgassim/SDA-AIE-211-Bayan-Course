@@ -77,3 +77,51 @@ XLM-R provided the most balanced tokenization performance across Arabic and Engl
 
 ## Lab 3A — TF-IDF Baseline
 - Macro-F1: 1.0000
+
+
+## Lab 3A — Topic Classification
+
+### TF-IDF + LinearSVC Baseline
+- Test Macro-F1: 1.0000
+
+### Grouped Split Integrity
+- Train / Validation citizen overlap: 0
+- Train / Test citizen overlap: 0
+- Validation / Test citizen overlap: 0
+
+### Transformer Classifier
+Checkpoint:
+`CAMeL-Lab/bert-base-arabic-camelbert-mix`
+
+Validation:
+- Macro-F1: 1.0000
+- Accuracy: 1.0000
+
+Frozen Test:
+- Macro-F1: 1.0000
+- Accuracy: 1.0000
+
+### Improvement over baseline
+- Baseline Macro-F1: 1.0000
+- Transformer Macro-F1: 1.0000
+- Delta: +0.0000
+
+The +0.08 improvement target could not be exceeded because the baseline already achieved the maximum possible Macro-F1 score of 1.0000 on the supplied split.
+
+
+## Lab 3B — NER + Extractive QA
+
+### NER
+- Alignment contract: 8/8 tests passed
+- Validation entity-level F1: 1.0000
+- Validation accuracy: 1.0000
+- Frozen test entity-level F1: 1.0000
+- Frozen test accuracy: 1.0000
+- Target F1 >= 0.80: Passed
+
+### QA
+- QA post-processing contract tests: Passed
+- Smoke-set answerable questions: 12/12 correct
+- Smoke-set unanswerable questions: 0/0 present in the supplied file
+
+Note: The supplied `qa_smoke_set.json` contains 12 answerable questions and no unanswerable questions, while the README specifies 9 answerable and 3 unanswerable questions. Honest null handling is covered by the QA contract tests.
