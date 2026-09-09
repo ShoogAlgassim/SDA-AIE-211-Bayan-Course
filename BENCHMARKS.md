@@ -270,3 +270,21 @@ Additional prioritised fixes are:
 1. Add hard contrastive examples for `parks` versus `roads`.
 2. Add Arabic orthographic and noisy-text augmentation.
 3. Verify class mapping and class-balanced training for `parks`.
+
+
+## Lab 7 — CPU Inference Optimisation
+
+### Step 1 — FP32 Baseline
+
+CPU threads pinned to: 4
+
+| Configuration | p50 | p99 |
+| --- | ---: | ---: |
+| FP32, padded, max_length=512 | 1798.51 ms | 4976.57 ms |
+| FP32, dynamic padding, max_length=128 | 131.17 ms | 232.10 ms |
+
+Free-wins p99 speed-up from dynamic padding / shorter max length:
+
+`21.44x`
+
+The production latency evidence is CPU-based, as required by the lab.
