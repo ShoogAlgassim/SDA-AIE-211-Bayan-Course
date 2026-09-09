@@ -167,3 +167,66 @@ The target improvement of about +0.04 recall points was not observed because the
 - Delta: +0.0000
 
 The +0.04 Gulf-slice improvement target was not observed because both models achieved the maximum possible Macro-F1 score on the supplied Arabic evaluation split.
+
+
+## Lab 5 — Bilingual Semantic Search
+
+### Retrieval Results
+
+Bi-encoder model:
+`intfloat/multilingual-e5-base`
+
+Cross-encoder reranker:
+`cross-encoder/mmarco-mMiniLMv2-L12-H384-v1`
+
+Corpus size:
+20,000 cases
+
+Index dimension:
+768
+
+### Measured Metrics
+
+- Recall@10 without reranking: 0.0385
+- MRR@10 without reranking: 0.0059
+- Recall@10 with reranking: 0.0077
+- MRR@10 with reranking: 0.0013
+
+### Cross-lingual Slice
+
+- Arabic Recall@10: 0.0167
+- English Recall@10: 0.0000
+- Cross-lingual slice gap: 0.0167
+
+### No-answer Behaviour
+
+- No-answer queries: 20
+- Correct empty results: 20/20
+- Best tested threshold: 0.0
+
+The no-answer correctness target of at least 17/20 was achieved.
+
+### Latency
+
+- Bi-encoder average latency: 33.45 ms
+- Two-stage average latency: 91.02 ms
+
+### Evaluation Note
+
+The retrieval targets were not achieved on the provided labelled query set.
+
+Further inspection showed that 103 out of 130 answerable queries (79.23%) have exact-match cases in the 20,000-case corpus that are not included in their `relevant_case_ids`.
+
+A total of 5,009 exact-match cases were found outside the labelled relevant sets.
+
+For example, an Arabic query about a pothole had exact duplicate case texts retrieved with cosine similarity 1.0, but those case IDs were not included in the labelled relevant IDs.
+
+Therefore, the measured retrieval metrics are strongly affected by duplicate cases and incomplete relevance labels. The reported values are kept unchanged to preserve honest evaluation.
+
+### L2 Normalisation Diagnosis
+
+The FAISS index uses `IndexFlatIP`, so both corpus vectors and query vectors are L2-normalised before similarity search.
+
+Without L2 normalisation, inner-product scores are affected by vector magnitude rather than only semantic direction. This can produce plausible-looking nearest neighbours while significantly reducing retrieval metrics.
+
+This demonstrates why retrieval quality should not be approved by manually inspecting a few results. The labelled evaluation set and retrieval metrics must be used.
