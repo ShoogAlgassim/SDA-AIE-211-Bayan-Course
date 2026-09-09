@@ -230,3 +230,43 @@ The FAISS index uses `IndexFlatIP`, so both corpus vectors and query vectors are
 Without L2 normalisation, inner-product scores are affected by vector magnitude rather than only semantic direction. This can produce plausible-looking nearest neighbours while significantly reducing retrieval metrics.
 
 This demonstrates why retrieval quality should not be approved by manually inspecting a few results. The labelled evaluation set and retrieval metrics must be used.
+
+
+## Lab 6 — Evaluation Report
+
+### Bootstrap and Sliced Evaluation
+
+- Validation rows: 2400
+- Validation errors: 300
+- English accuracy: 1.0000
+- Arabic accuracy: 0.7500
+- `parks` accuracy: 0.0000
+- Medium-length accuracy: 0.8894
+- Short-length accuracy: 0.8435
+
+### Behavioural Evaluation
+
+The supplied behavioural template file contains:
+
+- Invariance tests: 200
+- Directional tests: 200
+- Explicit MFT rows: 0
+
+The behavioural runner was implemented for invariance, directional behaviour, and optional MFT cases.
+
+A sentiment predictor and explicit MFT test rows are not supplied in the repository, so unsupported pass rates were not fabricated.
+
+### Manual Error Review
+
+120 sampled validation errors were manually reviewed.
+
+- Class confusion / under-learned class: 120/120
+- Primary confusion: `parks -> roads`
+
+The strongest observed fix is targeted improvement of the `parks` class. If all 300 current validation errors were corrected, validation accuracy would improve by approximately 12.5 percentage points.
+
+Additional prioritised fixes are:
+
+1. Add hard contrastive examples for `parks` versus `roads`.
+2. Add Arabic orthographic and noisy-text augmentation.
+3. Verify class mapping and class-balanced training for `parks`.
